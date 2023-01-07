@@ -1,5 +1,13 @@
 const { Client, WebhookClient, MessageFlags } = require('discord.js-selfbot-v13');
-const config = require('./config.json');
+const {
+  token,
+  status,
+  channel_ids,
+  webhook_urls,
+  mention_server,
+  mention_original,
+  mention_replaced
+} = require('./config.js');
 
 /*
 * Return the token portion from a webhook url.
@@ -44,19 +52,15 @@ function parseWebhookId(webhookUrl) {
 const channelWebhookMapping = {};
 
 function loadConfigValues() {
-  for (const mirror of config['mirrors']) {
+  for(let i = 0; i < channel_ids.length; i++) {
     const webhooks = [];
-  
-    for (const webhookUrl of mirror['webhooks_urls']) {
-      webhooks.push(new WebhookClient({
-        token: parseWebhookToken(webhookUrl),
-        id: parseWebhookId(webhookUrl)
-      }));
-    }
-  
-    for (const channelId of mirror['channel_ids']) {
-      channelWebhookMapping[channelId] = webhooks;
-    }
+
+    webhooks.push(new WebhookClient({
+      token: parseWebhookToken(webhook_urls[i]),
+      id: parseWebhookId(webhook_urls[i])
+    }));
+
+    channelWebhookMapping[channel_ids[i]] = webhooks;
   }
 }
 
@@ -66,7 +70,7 @@ const client = new Client({ checkUpdate: false });
 
 client.on('ready', async () => {
   console.log(`${client.user.username} is now mirroring >:)!`);
-  client.user.setPresence({ status: config['status'] });
+  client.user.setPresence({ status: status });
 });
 
 client.on('messageCreate', async (message) => {
@@ -81,13 +85,13 @@ client.on('messageCreate', async (message) => {
   }
 
   const webhooks = channelWebhookMapping[message.channelId];
-  
+
   if (!webhooks) {
     return;
   }
 
   const emptyChar = '᲼';
-  
+
   // Prevent 'MessageEmbed field values must be non-empty strings'.
   for (const embed of message.embeds) {
     for (const field of embed.fields) {
@@ -107,11 +111,11 @@ client.on('messageCreate', async (message) => {
     }
   }
   else {
-    const mentionReplaceList = config['mentions'][message.guildId];
-  
+    const mentionReplaceList = mention_server[message.guildId];
+
     if (mentionReplaceList) {
       for (const replacePair of mentionReplaceList) {
-        message.content = message.content.replaceAll(replacePair['original'], replacePair['replaced']);
+        message.content = message.content.replaceAll(mention_original, mention_replaced);
       }
     }
   }
@@ -130,4 +134,4 @@ client.on('messageCreate', async (message) => {
   }
 });
 
-client.login(config['token']);
+client.login(token);

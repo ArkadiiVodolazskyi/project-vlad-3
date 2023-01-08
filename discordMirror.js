@@ -1,4 +1,5 @@
-const { Client, WebhookClient, MessageFlags } = require('discord.js-selfbot-v13');
+import { Client, WebhookClient, MessageFlags } from 'discord.js-selfbot-v13';
+import config from './config.js';
 const {
   token,
   status,
@@ -7,7 +8,8 @@ const {
   mention_server,
   mention_original,
   mention_replaced
-} = require('./config.js');
+} = config;
+import { parse } from './parser.js';
 
 /*
 * Return the token portion from a webhook url.
@@ -124,9 +126,11 @@ client.on('messageCreate', async (message) => {
     message.content += '\n' + attachment[1].url;
   }
 
+  const parsed_message = await parse(message.content);
+
   for (const webhook of webhooks) {
     webhook.send({
-      content: message.content,
+      content: parsed_message,
       username: message.author.username,
       avatarURL: message.author.avatarURL(),
       embeds: message.embeds

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Make your account behave like a bot and mirror messages from a server to another.",
   "main": "discordMirror.js",
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/crimilo/Discord-Mirror.git"

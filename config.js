@@ -1,7 +1,7 @@
-const dotenv = require('dotenv');
+import dotenv from 'dotenv';
 dotenv.config();
-module.exports = {
-  token: process.env.token,
+const config = {
+	token: process.env.token,
 	status: process.env.status,
 	channel_ids: process.env.channel_id.split(' '),
 	webhook_urls: process.env.webhook_url.split(' '),
@@ -9,3 +9,4 @@ module.exports = {
 	mention_original: process.env.mention_original,
 	mention_replaced: process.env.mention_replaced
 };
+export default config;
